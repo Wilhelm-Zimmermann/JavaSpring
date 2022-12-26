@@ -13,6 +13,8 @@ import com.devsuperior.course_java.repositories.UserRepository;
 import com.devsuperior.course_java.services.exceptions.DatabaseException;
 import com.devsuperior.course_java.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class UserService {
 	@Autowired
@@ -42,9 +44,13 @@ public class UserService {
 	}
 
 	public User update(Long id, User obj) {
-		var entity = userRepository.getReferenceById(id);
-		updateData(entity, obj);
-		return userRepository.save(entity);
+		try {
+			var entity = userRepository.getReferenceById(id);
+			updateData(entity, obj);
+			return userRepository.save(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
 	}
 
 	private void updateData(User entity, User obj) {
